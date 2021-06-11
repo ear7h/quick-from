@@ -1,0 +1,18 @@
+[package]
+name = "quick_from"
+version = "0.1.0"
+edition = "2018"
+authors = ["ear7h"]
+license-file = "LICENSE_MIT_ACKNOWLEDGE"
+description = "A derive macro for quickly implementing From on on enum variants that wrap other types."
+repository = "https://github.com/ear7h/quick-from"
+keywords = ["derive", "macro"]
+categories = ["rust-patterns"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "1.0"
+quote = "1.0"
+proc-macro2 = "1.0"
