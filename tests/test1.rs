@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 #[macro_use]
 extern crate quick_from;
 
@@ -43,3 +45,21 @@ fn import() {
     let _x = my_read("hello.txt");
 
 }
+
+#[derive(QuickFrom)]
+enum Enum3<'a, 'b, T> {
+    #[quick_from]
+    A(&'a [u32]),
+
+    #[quick_from]
+    B(&'b bool),
+
+    C(T)
+}
+
+#[test]
+fn lifetime() {
+    let s : &[u32] = &[1, 2, 3];
+    let _ : Enum3<i32> = s.into();
+}
+

@@ -1,5 +1,5 @@
 use proc_macro::{self, TokenStream};
-use quote::quote;
+use quote::{quote, ToTokens};
 use syn::{
     parse_macro_input,
     DataEnum,
@@ -9,12 +9,14 @@ use syn::{
 };
 
 #[proc_macro_derive(QuickFrom, attributes(quick_from))]
-pub fn simple_from(input: TokenStream) -> TokenStream {
-    let DeriveInput{ident, data, ..} = parse_macro_input!(input);
+pub fn quick_from(input: TokenStream) -> TokenStream {
+    let DeriveInput{ident, data, generics, ..} = parse_macro_input!(input);
+    let generics = generics.to_token_stream();
+
     let variants = if let Data::Enum(DataEnum{variants, ..}) = data {
         variants
     } else {
-        return quote!{ compile_error!("SimpleFrom only accepts enums") }.into()
+        return quote!{ compile_error!("QuickFrom only accepts enums") }.into()
     };
 
     let mut out = TokenStream::new();
@@ -36,7 +38,7 @@ pub fn simple_from(input: TokenStream) -> TokenStream {
         let var_type = if let Fields::Unnamed(fields) = variant.fields {
             if fields.unnamed.len() != 1 {
                 return quote!{
-                    compile_error!("SimpleFrom #[from] variant must have \
+                    compile_error!("QuickFrom #[quick_from] variant must have \
                         exactly one unnamed field")
                 }.into()
             }
@@ -44,13 +46,13 @@ pub fn simple_from(input: TokenStream) -> TokenStream {
             fields.unnamed.first().unwrap().ty.clone()
         } else {
             return quote!{
-                compile_error!("SimpleFrom #[from] variant must have \
+                compile_error!("QuickFrom #[quick_from] variant must have \
                     exactly one unnamed field")
             }.into()
         };
 
         let x : TokenStream = quote!{
-            impl From<#var_type> for #enum_type {
+            impl#generics From<#var_type> for #enum_type#generics {
                 fn from(x : #var_type) -> Self {
                     Self::#var_name(x)
                 }
